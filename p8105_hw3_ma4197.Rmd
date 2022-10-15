@@ -81,7 +81,7 @@ ggplot(accel_data, aes(x= active_num, y= active_counts)) +
   theme_classic()+ 
   theme(legend.position= "bottom")+
   ggtitle("24-Hour Activity Time Count")+
-  theme(plot.title = element_text(hjust= 0.5))
+  theme(plot.title = element_text(hjust= 0.5))+
     labs(x = "Active Minutes",
         y= "Active Counts") +
    scale_colour_brewer(type = "seq", palette = "Spectral")
@@ -91,9 +91,13 @@ With Lines
 ```{r}
 ggplot(accel_data, aes(x= active_num, y= active_counts)) +
   geom_point(aes(color= day), alpha=0.5) +
-  geom_line(aes(group= day))+
+  geom_line(aes(group= day, color=day))+
   theme_classic()+ 
-  theme(legend.position= "bottom")
+  theme(legend.position= "bottom")+
+  ggtitle("24-Hour Activity Time Count")+
+  theme(plot.title = element_text(hjust= 0.5))+
+    labs(x = "Active Minutes",
+        y= "Active Counts") +
    scale_colour_brewer(type = "seq", palette = "Spectral")
 ```
 
@@ -102,4 +106,10 @@ ggplot(accel_data, aes(x= active_num, y= active_counts)) +
 Based upon this graph, there appears to peaks in active counts being measured from the
 accelerometer on Saturday and Sunday for this participant. (ADD MORE)
 
+##Problem 3
+
+```{r}
+library(p8105.datasets)
+data("ny_noaa")
+```
 
