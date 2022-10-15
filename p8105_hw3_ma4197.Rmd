@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(readxl)
+library("scales")
 ```
 
 ##Problem 1
@@ -34,9 +35,9 @@ janitor::clean_names() %>%
     activity_1:activity_1440,
     names_to = "active_num",
     names_prefix = "activity_",
-    names_transform=list(activity_=as.numeric),
-    values_to = "active_counts") %>% 
-    mutate( as.numeric("activity_"))
+    names_transform=list(activity_= as.numeric),
+    values_to = "active_counts")
+   
 view(accel_data)
 skimr::skim(accel_data)
 ```
@@ -89,7 +90,7 @@ ggplot(accel_data, aes(x= active_num, y= active_counts)) +
 With Lines
 
 ```{r}
-ggplot(accel_data, aes(x= active_num, y= active_counts)) +
+ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
   geom_point(aes(color= day), alpha=0.5) +
   geom_line(aes(group= day, color=day))+
   theme_classic()+ 
@@ -111,5 +112,24 @@ accelerometer on Saturday and Sunday for this participant. (ADD MORE)
 ```{r}
 library(p8105.datasets)
 data("ny_noaa")
+view(ny_noaa)
+skimr::skim(ny_noaa)
+```
+####Description
+In the "ny_noaa" there are 7 variables and 2,595,176 observations. This data looks
+at the 5 key variables that all New York weather stations assess, from January 1, 1981, to December 31st, 2010. Key variables include:'id', 'date', 'prcp', 'snow', 'snwd', 'tmax' and 'tmin'. In this data set, a significant portion of the data is missing from some of the variables. For prcp, about 145,838 observations are missing, with approximately 94.38% of the data having observations for the variable. For snow and snwd, approximately 85.31% and 77.19% of the data have observations for those variables. However for both tmax and tmin only 56.29%
+of the data have observation  values for these variables, indicating that overall the missing data may bias the analysis due to the portion missing/labeled na.
+
+###Part 1- Data Cleaning
+```{r}
+ny_noaa= ny_noaa %>% 
+  janitor::clean_names() %>% 
+  separate(date, c("year", "month", "day"), sep = "-") %>% 
+  mutate( 
+  month = recode(month,
+      '01' = "january", '02'= "february", '03'= "march", '04'= "april", '05'= "may",
+      '06'= "june", '07'= "july", '08'= "august", '09'= "september", '10'= "october", 
+      '11' = "november", '12' = "december"))
+view(ny_noaa)
 ```
 
