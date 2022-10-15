@@ -54,7 +54,15 @@ accel_data %>%
   mutate(
     tot_active= sum(active_counts)) %>% 
   summarize(day_id, tot_active) %>% 
-  distinct
+  distinct %>% 
+  print (n=)
 ```
 
-###2x2 Table
+####Explanation
+Based on the printed table above, there are 35 days included in the data set. When observing
+the total activity counts ("tot_active") across the 35 days, there does not appear to be
+an definable trend in the total activity of the individual. However, there are dips in total
+activity count on days 24 and 31.
+
+
+
