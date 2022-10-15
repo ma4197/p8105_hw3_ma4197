@@ -31,12 +31,30 @@ janitor::clean_names() %>%
     wkd_wkn= ifelse(day %in% c('Sunday', 'Saturday'), 'weekend', 'weekday')) %>% 
   relocate(week,day_id, day,wkd_wkn) %>%
   pivot_longer(
-    accel_data,
     activity_1:activity_1440,
     names_to = "active_num",
-    values_to = "active_counts"
-  )
+    names_prefix = "activity_",
+    names_transform=list(activity_=as.numeric),
+    values_to = "active_counts") %>% 
+    mutate( as.numeric("activity_"))
 view(accel_data)
-skimr::skim(mr_trash_wheel)
+skimr::skim(accel_data)
+```
+In this cleaned dataset of 'accel_data' there are 6 variables: "week", "day_id", "day",
+"wkd_wkn", "active_num", "active_count". "Active_num" and "active_count" were generated
+from the previously displayed data for each activity that would occur (1-1440) and the 
+corresponding count value the accelerometer measured. There are 50,400 observations within
+this new data set.
+
+
+###Aggregated Data
+```{r}
+accel_data %>% 
+  group_by(day_id) %>% 
+  mutate(
+    tot_active= sum(active_counts)) %>% 
+  summarize(day_id, tot_active) %>% 
+  distinct
 ```
 
+###2x2 Table
