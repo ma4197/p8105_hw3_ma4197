@@ -1,0 +1,42 @@
+---
+title: "p8105_hw3_ma4197"
+author: "Mayuri Albal"
+date: "2022-10-15"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+```
+
+##Problem 1
+```{r}
+library(p8105.datasets)
+data("instacart")
+```
+
+
+##Problem 2
+
+```{r}
+accel_data = read_csv(file= "./data/accel_data.csv") %>%
+janitor::clean_names() %>%
+  mutate(
+    wkd_wkn= ifelse(day %in% c('Sunday', 'Saturday'), 'weekend', 'weekday')) %>% 
+  relocate(week,day_id, day,wkd_wkn) %>%
+  pivot_longer(
+    accel_data,
+    activity_1:activity_1440,
+    names_to = "active_num",
+    values_to = "active_counts"
+  )
+view(accel_data)
+skimr::skim(mr_trash_wheel)
+```
+
