@@ -4,9 +4,15 @@ author: "Mayuri Albal"
 date: "2022-10-15"
 output: github_document
 ---
+##Set-Up:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
 ```
 
 ```{r}
@@ -25,9 +31,65 @@ library(p8105.datasets)
 data("instacart")
 ```
 
+Preliminary Analysis:
+```{r}
+instacart=
+  instacart %>% 
+  as_tibble (instacart)
+```
 
-##Problem 2
+Explanation:
+In this data set 'instacart' there are 15 variables and 1,384,617 observations.
+Each row signifies an item within an individuals order. For example, an order 1 had ordered,
+Bulgarian yogurt, Cottage Cheese, Celery Hearts, Cucumber Kirby, Smoked Sardines, etc. Key variables in this data set are: "order_id", "product_id", "add_to_cart_order", "reordered",
+"user_id","eval_set", "order_number", "order_hour_of_day", "days_since_prior_order",
+"product_name", "aisle_id", "department_id", "aisle", and "department".
 
+Aisle Count:
+```{r}
+instacart %>% 
+  group_by(aisle_id) %>% 
+  summarize(n_obs= n()) %>% 
+  arrange(desc(n_obs))
+```
+Explanation:
+There are 134 aisles, Aisles 83 (obs= 150,609) and 24 (obs= 150,473) were ordered from the most.
+
+Plot of Number of Items Ordered in Each Aisle:
+```{r}
+instacart %>% 
+  count(aisle) %>% 
+filter(n > 10000) %>% 
+  mutate(aisle= fct_reorder(aisle, n)) %>% 
+  ggplot (aes(x=aisle, y=n))+
+  geom_point()+
+  labs(title= "Number of Items Ordered in Each Aisle")+
+  theme(axis.text.x= element_text (angle=60, hjust=1))
+```
+Top Three Most Popular Items:
+```{r}
+instacart %>% 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>% 
+  group_by(aisle) %>% 
+  count(product_name) %>% 
+  mutate (rank= min_rank (desc(n))) %>% 
+  filter(rank < 4) %>% 
+  arrange (desc(n))
+```
+
+Mean Hour of Day for Ordering of 'Pink Lady Apple' and 'Coffee Ice Cream':
+```{r}
+instacart %>% 
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
+  group_by(product_name, order_dow) %>% 
+  summarize (mean_hour = mean (order_hour_of_day)) %>% 
+  spread(key = order_dow, value = mean_hour) 
+```
+
+
+##Problem 2 
+
+Data Cleaning:
 ```{r}
 accel_data = read_csv(file= "./data/accel_data.csv") %>%
 janitor::clean_names() %>%
@@ -44,14 +106,14 @@ janitor::clean_names() %>%
 view(accel_data)
 skimr::skim(accel_data)
 ```
-In this cleaned dataset of 'accel_data' there are 6 variables: "week", "day_id", "day",
+In this cleaned data set of 'accel_data' there are 6 variables: "week", "day_id", "day",
 "wkd_wkn", "active_num", "active_count". "Active_num" and "active_count" were generated
 from the previously displayed data for each activity that would occur (1-1440) and the 
 corresponding count value the accelerometer measured. There are 50,400 observations within
 this new data set.
 
 
-###Aggregated Data
+Aggregated Data:
 ```{r}
 accel_data %>% 
   group_by(day_id) %>% 
@@ -62,23 +124,13 @@ accel_data %>%
   print (n=)
 ```
 
-####Explanation
+Explanation:
 Based on the printed table above, there are 35 days included in the data set. When observing
 the total activity counts ("tot_active") across the 35 days, there does not appear to be
 an definable trend in the total activity of the individual. However, there are dips in total
 activity count on days 24 and 31.
 
-###Graphing
-
-```{r}
-knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
-)
-```
-
-###Plot
+Plot:
 ```{r}
 ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
   geom_line(aes(group= day, color=day))+
@@ -92,27 +144,24 @@ ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
    scale_colour_brewer(type = "seq", palette = "Spectral")
 ```
 
-
-####Explanation
+Explanation:
 Based upon this graph, there appears to peaks in active counts being measured from the
 accelerometer on Saturday and Sunday for this participant. Additionally, it appears that
-during 1250 minutes throughout all of the days, there is a peak in active minutes around 7500 active counts. However for Saturday and Sunday, this peak is observed earlier in the daya during the 500 to 750 minutes as well as 1000 minutes.
+during 1250 minutes throughout all of the days, there is a peak in active minutes around 7500 active counts. However for Saturday and Sunday, this peak is observed earlier in the data during the 500 to 750 minutes as well as 1000 minutes.
 
 ##Problem 3
 
 ```{r}
 library(p8105.datasets)
 data("ny_noaa")
-view(ny_noaa)
-skimr::skim(ny_noaa)
 ```
-####Description
+
+Description:
 In the "ny_noaa" there are 7 variables and 2,595,176 observations. This data looks
 at the 5 key variables that all New York weather stations assess, from January 1, 1981, to December 31st, 2010. Key variables include:'id', 'date', 'prcp', 'snow', 'snwd', 'tmax' and 'tmin'. In this data set, a significant portion of the data is missing from some of the variables. For prcp, about 145,838 observations are missing, with approximately 94.38% of the data having observations for the variable. For snow and snwd, approximately 85.31% and 77.19% of the data have observations for those variables. However for both tmax and tmin only 56.29%
-of the data have observation  values for these variables, indicating that overall the missing data may bias the analysis due to the portion missing/labeled na.
+of the data have observation  values for these variables, indicating that overall the missing data may bias the analysis due to the portion missing/labeled NA.
 
-###Part 1- Data Cleaning
-
+Part 1- Data Cleaning:
 ```{r}
 ny_noaa_3 =
 ny_noaa %>% 
@@ -132,19 +181,19 @@ ny_noaa %>%
 skimr::skim(ny_noaa)
 ```
 
-###Snow Count
+Snow Count:
 ```{r}
 count(ny_noaa_3, snow) 
 ```
 
-####Explanation
+Explanation:
 From the original data set 'ny_noaa', which had 7 variables and 2,595176 observations, a new data set was formed called 'ny_noaa_3' with 9 variables and 2,595,176 observations. In this new data set, the variables are: 'id', 'year', 'month', 'day', 'prcp', 'snow', 'snwd',
 'tmax', and 'tmin'. The variables 'year', 'month', and 'day' were formed from the variable 'date' in the original data set. The variables 'prcp', 'tmin', and 'tmax' were divided by 10
-due to their orignal units being a tenth of a mm or Celcius, while the other variables were not, thus was done to ensure reasonable units. 
+due to their original units being a tenth of a mm or Celsius, while the other variables were not, thus was done to ensure reasonable units. 
 
 When observing the variable snowfall, the most commonly observed values were 0mm of snowfall and NA. This signifies that many days between January 1981 and December 2010 did not have snowfall in New York, which can be corroborated due to snowfall being only during winter months and under specific conditions, thus more likely to have more dates reporting NA or 0 mm of snowfall.
 
-###Plot
+Plot:
 ```{r}
 jj_tmax=
 ny_noaa_3 %>% 
@@ -163,12 +212,12 @@ ggplot(data= jj_tmax,aes(x= year, y= tmax_mean, color=month))+
 facet_grid(.~month)
 ```
 
-####Description
+Description:
 From these plots, it appears that in the month of January the tmax temperature was often around 0 degrees Celsius, with a few outliers below -10 degrees Celsius. For the month of July, it appears that the tmax temperature was often around 27 degrees Celsius, with one outlier being about 15 degrees Celsius as the tmax for the month of July.
 
 ###Part 2
 
-tmin vs.tmax Plot
+tmin vs.tmax Data:
 ```{r}
 tmax_tmin_comp=
   ny_noaa_3 %>% 
@@ -184,7 +233,7 @@ tmax_tmin_comp=
   viridis::scale_fill_viridis(discrete = TRUE)
 ```
 
-Snowfall Plot
+Snowfall Data:
 ```{r}
 snowfall_amount =
   ny_noaa_3 %>% 
@@ -195,7 +244,7 @@ snowfall_amount =
 
 ```
 
-###Patchwork
+Patchwork:
 ```{r}
 tmax_tmin_comp=
   ny_noaa_3 %>% 
@@ -221,7 +270,7 @@ snowfall_amount =
   ggplot(aes(x=snow, y=year,group=year,fill=year))+
   geom_density_ridges(alpha=0.5)+
   labs(
-    title= "Distribution of Snowfall Greater than 0mm and Less than 100mm By Year (1981-2010)",
+    title= "Distribution of Snowfall >0mm and <100mm By Year (1981-2010)",
     x= "Snowfall Amount(mm)",
     y= "Year")+ 
   theme(plot.title = element_text(hjust= 0.5))+
@@ -229,10 +278,3 @@ snowfall_amount =
   
 (snowfall_amount+tmax_tmin_comp)
 ```
-
-
-
-
-
-
-
