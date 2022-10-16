@@ -30,12 +30,12 @@ accel_data = read_csv(file= "./data/accel_data.csv") %>%
 janitor::clean_names() %>%
   mutate(
     wkd_wkn= ifelse(day %in% c('Sunday', 'Saturday'), 'weekend', 'weekday')) %>% 
-  relocate(week,day_id, day,wkd_wkn) %>%
+  relocate(week,day_id,day,wkd_wkn) %>%
   pivot_longer(
     activity_1:activity_1440,
     names_to = "active_num",
     names_prefix = "activity_",
-    names_transform=list(activity_= as.numeric),
+    names_transform=list(active_num= as.numeric),
     values_to = "active_counts")
    
 view(accel_data)
@@ -85,7 +85,7 @@ ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
   theme(plot.title = element_text(hjust= 0.5))+
     labs(x = "Active Minutes",
         y= "Active Counts") +
-  theme(axis.text.x = element_blank())
+  scale_x_continuous(breaks= c(0, 250, 500, 750, 1000, 1250, 1500))
    scale_colour_brewer(type = "seq", palette = "Spectral")
 ```
 
@@ -93,7 +93,7 @@ ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
 ####Explanation
 Based upon this graph, there appears to peaks in active counts being measured from the
 accelerometer on Saturday and Sunday for this participant. Additionally, it appears that
-during mid-morning throughout all of the days, there is a peak in active minutes around 7500 active counts. However for Saturday and Sunday, this peak is observed again during the midafternoon.
+during 1250 minutes throughout all of the days, there is a peak in active minutes around 7500 active counts. However for Saturday and Sunday, this peak is observed earlier in the daya during the 500 to 750 minutes as well as 1000 minutes.
 
 ##Problem 3
 
@@ -160,7 +160,9 @@ When observing the variable snowfall, the most commonly observed values were 0mm
 
 ###Plot
 ```{r}
-ggplot(ny_noaa_3, aes())
+ggplot(ny_noaa_3, aes(x=year, y=tmax, color= month))+
+  geom_point(alpha =0.5) +
+facet_grid(.~month)
 ```
 
 
