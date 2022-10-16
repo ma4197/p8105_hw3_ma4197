@@ -75,23 +75,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-Without Lines
-```{r}
-ggplot(accel_data, aes(x= active_num, y= active_counts)) +
-  geom_point(aes(color= day), alpha=0.5) +
-  theme_classic()+ 
-  theme(legend.position= "bottom")+
-  ggtitle("24-Hour Activity Time Count")+
-  theme(plot.title = element_text(hjust= 0.5))+
-    labs(x = "Active Minutes",
-        y= "Active Counts") +
-   scale_colour_brewer(type = "seq", palette = "Spectral")
-```
-With Lines
-
+###Plot
 ```{r}
 ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
-  geom_point(aes(color= day), alpha=0.5) +
   geom_line(aes(group= day, color=day))+
   theme_classic()+ 
   theme(legend.position= "bottom")+
@@ -99,13 +85,15 @@ ggplot(accel_data, aes(x= active_num, y= active_counts, color=day)) +
   theme(plot.title = element_text(hjust= 0.5))+
     labs(x = "Active Minutes",
         y= "Active Counts") +
+  theme(axis.text.x = element_blank())
    scale_colour_brewer(type = "seq", palette = "Spectral")
 ```
 
 
 ####Explanation
 Based upon this graph, there appears to peaks in active counts being measured from the
-accelerometer on Saturday and Sunday for this participant. (ADD MORE)
+accelerometer on Saturday and Sunday for this participant. Additionally, it appears that
+during mid-morning throughout all of the days, there is a peak in active minutes around 7500 active counts. However for Saturday and Sunday, this peak is observed again during the midafternoon.
 
 ##Problem 3
 
@@ -121,15 +109,58 @@ at the 5 key variables that all New York weather stations assess, from January 1
 of the data have observation  values for these variables, indicating that overall the missing data may bias the analysis due to the portion missing/labeled na.
 
 ###Part 1- Data Cleaning
+
 ```{r}
-ny_noaa= ny_noaa %>% 
+ny_noaa_3 =
+ny_noaa %>% 
   janitor::clean_names() %>% 
-  separate(date, c("year", "month", "day"), sep = "-") %>% 
-  mutate( 
-  month = recode(month,
-      '01' = "january", '02'= "february", '03'= "march", '04'= "april", '05'= "may",
-      '06'= "june", '07'= "july", '08'= "august", '09'= "september", '10'= "october", 
-      '11' = "november", '12' = "december"))
-view(ny_noaa)
+  separate(date, c("year", "month", "day"), sep = "-") %>%
+  mutate(
+    year= as.numeric(year),
+    month= as.numeric(month),
+    day=as.numeric(day),
+   tmin= as.numeric(tmin),
+   tmax= as.numeric(tmax),
+   snow= as.numeric(snow),
+    tmin= tmin/10,
+    tmax = tmax/10,
+    prcp = prcp/10
+  )
+skimr::skim(ny_noaa)
 ```
+
+```{r}
+ny_noaa %>% 
+  janitor::clean_names() %>% 
+  separate(date, c("year", "month", "day"), sep = "-") %>%
+  mutate(
+    year= as.numeric(year),
+    month= as.numeric(month),
+    day = as.numeric(day),
+    snow= as.numeric(snow),
+    tmin= as.numeric(tmin),
+    tmax= as.numeric(tmax),
+    tmin= tmin/10,
+    tmax = tmax/10,
+    prcp = prcp/10
+  )
+```
+
+###Snow Count
+```{r}
+count(ny_noaa_3, snow) 
+```
+
+####Explanation
+From the original data set 'ny_noaa', which had 7 variables and 2,595176 observations, a new data set was formed called 'ny_noaa_3' with 9 variables and 2,595,176 observations. In this new data set, the variables are: 'id', 'year', 'month', 'day', 'prcp', 'snow', 'snwd',
+'tmax', and 'tmin'. The variables 'year', 'month', and 'day' were formed from the variable 'date' in the original data set. The variables 'prcp', 'tmin', and 'tmax' were divided by 10
+due to their orignal units being a tenth of a mm or Celcius, while the other variables were not, thus was done to ensure reasonable units. 
+
+When observing the variable snowfall, the most commonly observed values were 0mm of snowfall and NA. This signifies that many days between January 1981 and December 2010 did not have snowfall in New York, which can be corroborated due to snowfall being only during winter months and under specific conditions, thus more likely to have more dates reporting NA or 0 mm of snowfall.
+
+###Plot
+```{r}
+ggplot(ny_noaa_3, aes())
+```
+
 
