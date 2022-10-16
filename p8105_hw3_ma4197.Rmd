@@ -129,23 +129,6 @@ ny_noaa %>%
 skimr::skim(ny_noaa)
 ```
 
-```{r}
-ny_noaa %>% 
-  janitor::clean_names() %>% 
-  separate(date, c("year", "month", "day"), sep = "-") %>%
-  mutate(
-    year= as.numeric(year),
-    month= as.numeric(month),
-    day = as.numeric(day),
-    snow= as.numeric(snow),
-    tmin= as.numeric(tmin),
-    tmax= as.numeric(tmax),
-    tmin= tmin/10,
-    tmax = tmax/10,
-    prcp = prcp/10
-  )
-```
-
 ###Snow Count
 ```{r}
 count(ny_noaa_3, snow) 
@@ -160,9 +143,25 @@ When observing the variable snowfall, the most commonly observed values were 0mm
 
 ###Plot
 ```{r}
-ggplot(ny_noaa_3, aes(x=year, y=tmax, color= month))+
-  geom_point(alpha =0.5) +
+jj_tmax=
+ny_noaa_3 %>% 
+  filter(month %in% c("1", "7")) %>% 
+  mutate(month= recode(month, 
+                 "1"= "January",
+                 "7"= "July")) %>% 
+  drop_na(tmax) %>% 
+  group_by(year, month, id) %>% 
+  summarize(
+    tmax_mean= mean(tmax), .groups= "drop")
+
+ggplot(data= jj_tmax,aes(x= year, y= tmax_mean, color=month))+
+  geom_line(alpha=0.5, color= "purple")+
+  geom_smooth(alpha=0.5, se= FALSE, color= "purple")+
 facet_grid(.~month)
 ```
+
+
+
+
 
 
