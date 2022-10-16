@@ -14,6 +14,9 @@ library(tidyverse)
 library(ggplot2)
 library(readxl)
 library("scales")
+library(patchwork)
+library(dplyr)
+library(ggridges)
 ```
 
 ##Problem 1
@@ -159,6 +162,74 @@ ggplot(data= jj_tmax,aes(x= year, y= tmax_mean, color=month))+
   geom_smooth(alpha=0.5, se= FALSE, color= "purple")+
 facet_grid(.~month)
 ```
+
+####Description
+From these plots, it appears that in the month of January the tmax temperature was often around 0 degrees Celsius, with a few outliers below -10 degrees Celsius. For the month of July, it appears that the tmax temperature was often around 27 degrees Celsius, with one outlier being about 15 degrees Celsius as the tmax for the month of July.
+
+###Part 2
+
+tmin vs.tmax Plot
+```{r}
+tmax_tmin_comp=
+  ny_noaa_3 %>% 
+  drop_na(tmax,tmin) %>% 
+  select(tmax, tmin) %>% 
+  pivot_longer(
+    tmax:tmin,
+    names_to = "Observation",
+    values_to = "Temp"
+  ) %>% 
+ ggplot(aes(x = Temp, fill = Observation)) +
+  geom_density(alpha = .5) + 
+  viridis::scale_fill_viridis(discrete = TRUE)
+```
+
+Snowfall Plot
+```{r}
+snowfall_amount =
+  ny_noaa_3 %>% 
+  filter(0 < snow, snow < 100) %>% 
+  group_by(year) %>% 
+  ggplot(aes(x=snow, y=year,group=year,fill=year))+
+  geom_density_ridges()
+
+```
+
+###Patchwork
+```{r}
+tmax_tmin_comp=
+  ny_noaa_3 %>% 
+  drop_na(tmax,tmin) %>% 
+  select(tmax, tmin) %>% 
+  pivot_longer(
+    tmax:tmin,
+    names_to = "Observation",
+    values_to = "Temp"
+  ) %>% 
+ ggplot(aes(x = Temp, fill = Observation)) +
+  geom_density(alpha = .5) + 
+  labs(
+    title= "Tmax Temperatures versus Tmin Temperatures",
+    x= "Temperature")+
+  theme(plot.title = element_text(hjust= 0.5))+
+  viridis::scale_fill_viridis(discrete = TRUE)
+
+snowfall_amount =
+  ny_noaa_3 %>% 
+  filter(0 < snow, snow < 100) %>% 
+  group_by(year) %>% 
+  ggplot(aes(x=snow, y=year,group=year,fill=year))+
+  geom_density_ridges(alpha=0.5)+
+  labs(
+    title= "Distribution of Snowfall Greater than 0mm and Less than 100mm By Year (1981-2010)",
+    x= "Snowfall Amount(mm)",
+    y= "Year")+ 
+  theme(plot.title = element_text(hjust= 0.5))+
+  viridis::scale_fill_viridis(discrete = FALSE)
+  
+(snowfall_amount+tmax_tmin_comp)
+```
+
 
 
 
